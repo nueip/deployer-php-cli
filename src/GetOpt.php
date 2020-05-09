@@ -22,14 +22,14 @@ class GetOpt
      * @var array Cached options
      */
     private $_options;
-    
-    function __construct($options, array $longopts=[], $optind=null) 
+
+    function __construct($options, array $longopts = [], $optind = null)
     {
         // $optind for PHP 7.1.0
-        $this->_options = ($optind) 
+        $this->_options = ($optind)
             ? getopt($options, $longopts, $optind)
             : getopt($options, $longopts);
-        
+
         return $this;
     }
 
@@ -45,7 +45,7 @@ class GetOpt
     {
         // String Key
         if (is_string($options)) {
-            
+
             return (isset($this->_options[$options])) ? $this->_options[$options] : null;
         }
         // Array Keys
@@ -75,7 +75,7 @@ class GetOpt
     {
         // String Key
         if (is_string($options)) {
-            
+
             return (isset($this->_options[$options])) ? true : false;
         }
         // Array Keys

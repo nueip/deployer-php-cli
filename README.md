@@ -1,13 +1,11 @@
-Deployer PHP-CLI
-================
+# Deployer PHP-CLI
 
 CI/CD Deployment tool written in PHP supported for popular frameworks
 
-[![Latest Stable Version](https://poser.pugx.org/yidas/deployer-php-cli/v/stable?format=flat-square)](https://packagist.org/packages/yidas/deployer-php-cli)
-[![License](https://poser.pugx.org/yidas/deployer-php-cli/license?format=flat-square)](https://packagist.org/packages/yidas/deployer-php-cli)
+[![Latest Stable Version](https://poser.pugx.org/nueip/deployer-php-cli/v/stable?format=flat-square)](https://packagist.org/packages/nueip/deployer-php-cli)
+[![License](https://poser.pugx.org/nueip/deployer-php-cli/license?format=flat-square)](https://packagist.org/packages/nueip/deployer-php-cli)
 
-FEATURES
---------
+## FEATURES
 
 - *Deploy to **multiple** servers by **projects/groups***
 
@@ -21,60 +19,69 @@ Helping developers to deploy codes from local instance to remote instances.
 
 ---
 
-OUTLINE
--------
+## OUTLINE
 
-* [Demonstration](#demonstration)
-* [Requirements](#requirements)
-* [Installation](#installation)
-  - [Composer Installation](#composer-installation)
-  - [Wget Installation](#wget-installation)
-    - [Make Command](#make-command)
-  - [Startup](#startup)
-  - [Upgrade](#upgrade)
-* [Configuration](#configuration)
-  - [Project Setting](#project-setting)
-  - [Config Options](#config-options)
-    - [Git](#git)
-    - [Composer](#composer)
-    - [Test](#test)
-    - [Tests](#tests)
-    - [Rsync](#rsync)
-    - [Commands](#commands)
-  - [Example](#example)
-* [Usage](#usage)
-  - [Interactive Project Select](#interactive-project-select)
-  - [Non-Interactive Project Select](#non-interactive-project-select)
-  - [Skip Flows](#skip-flows)
-  - [Revert & Reset back](#revert--reset-back)
-* [Implementation](#implementation)
-  - [Permissions Handling](#permissions-handling)
-* [CI/CD](#cicd)
-  - [Webhook](#webhook)
-    - [PHP Web Setting](#php-web-setting)
-    - [Gitlab](#gitlab)
-* [Additions](#additions)
-  - [Rsync without Password](#rsync-without-password)
-  - [Save Binary Encode File](#save-binary-encode-file)
-  - [Yii2 Deployment](#yii2-deployment)
-  - [Minify/Uglify by Gulp](#minifyuglify-by-gulp)
-  
+- [Deployer PHP-CLI](#deployer-php-cli)
+  - [FEATURES](#features)
+  - [OUTLINE](#outline)
+  - [DEMONSTRATION](#demonstration)
+  - [REQUIREMENTS](#requirements)
+  - [INSTALLATION](#installation)
+    - [Composer Installation](#composer-installation)
+    - [Wget Installation](#wget-installation)
+      - [Make Command](#make-command)
+    - [Startup](#startup)
+    - [Upgrade](#upgrade)
+  - [CONFIGURATION](#configuration)
+    - [Project Setting](#project-setting)
+    - [Config Options](#config-options)
+      - [Git](#git)
+      - [Composer](#composer)
+      - [Test](#test)
+      - [Tests](#tests)
+      - [Rsync](#rsync)
+      - [Commands](#commands)
+    - [Example](#example)
+  - [USAGE](#usage)
+    - [Interactive Project Select](#interactive-project-select)
+    - [Non-Interactive Project Select](#non-interactive-project-select)
+    - [Skip Flows](#skip-flows)
+    - [Revert & Reset back](#revert--reset-back)
+  - [IMPLEMENTATION](#implementation)
+    - [Permissions Handling](#permissions-handling)
+      - [1. Local and Remote Users](#1-local-and-remote-users)
+      - [2. Application File Permissions](#2-application-file-permissions)
+  - [CI/CD](#cicd)
+    - [Webhook](#webhook)
+      - [PHP Web Setting](#php-web-setting)
+      - [Gitlab](#gitlab)
+  - [ADDITIONS](#additions)
+    - [Rsync without Password](#rsync-without-password)
+    - [Save Binary Encode File](#save-binary-encode-file)
+    - [Yii2 Deployment](#yii2-deployment)
+    - [Minify/Uglify by Gulp](#minifyuglify-by-gulp)
+      - [1. Install NPM, for Debian/Ubuntu](#1-install-npm-for-debianubuntu)
+      - [2. Install Gulp by NPM](#2-install-gulp-by-npm)
+      - [3. Create Gulp Project](#3-create-gulp-project)
+      - [4. Set Gulp with packages](#4-set-gulp-with-packages)
+      - [5. Set Gulp Process into Deployer](#5-set-gulp-process-into-deployer)
+
 ---
 
-DEMONSTRATION
--------------
+## DEMONSTRATION
 
 Deploy local project to remote servers by just executing the deployer in command after installation:
 
-```
-$ deployer
+```command
+user@stage:~$ deployer
 ```
 
 > Alternatively, you could call the original bootstrap: `$ ./deployer`, `$ php ./deployer`
 
 The interactive result could like be:
-```
-$ deployer
+
+```command
+user@stage:~$ deployer
 
 Your available projects in configuration:
   [0] your.project.com
@@ -93,14 +100,13 @@ Successful Excuted Task: Deploy
 
 Or you could run by non-interactive mode with the same purpose:
 
-```
-$ deployer --project="your.project.com"
+```command
+user@stage:~$ deployer --project="your.project.com"
 ```
 
 ---
 
-REQUIREMENTS
-------------
+## REQUIREMENTS
 
 This library requires the following:
 
@@ -109,67 +115,65 @@ This library requires the following:
 
 ---
 
-INSTALLATION
-------------
+## INSTALLATION
 
 ### Composer Installation
 
 Using Composer by `sudoer` or `root` to install is the easiest way with auto-installer:
 
-```
-composer create-project --prefer-dist yidas/deployer-php-cli
+```command
+user@stage:/srv$ composer create-project --prefer-dist nueip/deployer-php-cli
 ```
 
 ### Wget Installation
 
-You could see [Release](https://github.com/yidas/deployer-php-cli/releases) for picking up the package with version, for example:
-    
-```
-$ wget https://github.com/yidas/deployer-php-cli/archive/master.tar.gz -O deployer-php-cli.tar.gz
+You could see [Release](https://github.com/nueip/deployer-php-cli/releases) for picking up the package with version, for example:
+
+```command
+user@stage:~$ wget https://github.com/nueip/deployer-php-cli/archive/master.tar.gz -O deployer-php-cli.tar.gz
 ```
 
 After download, uncompress the package:
 
-```
-$ tar -zxvf deployer-php-cli.tar.gz
+```command
+user@stage:~$ tar -zxvf deployer-php-cli.tar.gz
 ```
 
 > In addition, you can rename the unzipped folder by  `mkdir deployer-php-cli && tar -zxvf deployer-php-cli.tar.gz --strip-components 1 -C deployer-php-cli`
 
 #### Make Command
 
-To make a command for deployer, if the package folder is `deployer-php-cli` then create a symbol by following command: 
+To make a command for deployer, if the package folder is `deployer-php-cli` then create a symbol by following command:
 
-```
-$ sudo chmod +x $(pwd -L)/deployer-php-cli/deployer
-$ sudo ln -s $(pwd -L)/deployer-php-cli/deployer /usr/bin/deployer
+```command
+user@stage:~$ sudo chmod +x $(pwd -L)/deployer-php-cli/deployer
+user@stage:~$ sudo ln -s $(pwd -L)/deployer-php-cli/deployer /usr/bin/deployer
 ```
 
 ### Startup
 
 After installation, you could start to set up the `config.inc.php` for deployer, and enjoy to use:
 
-```
-$ deployer
+```command
+user@stage:~$ deployer
 ```
 
 ### Upgrade
 
 To upgrade, you could re-install the deployer and copy the old `config.inc.php` to the new one, for example:
 
-```
-$ cp ./deployer-php-cli/config.inc.php ./
-$ rm -r deployer-php-cli
-$ composer create-project --prefer-dist yidas/deployer-php-cli
-$ mv ./config.inc.php ./deployer-php-cli
+```command
+user@stage:/srv/deployer$ cp ./deployer-php-cli/config.inc.php ./
+user@stage:/srv/deployer$ rm -r deployer-php-cli
+user@stage:/srv/deployer$ composer create-project --prefer-dist nueip/deployer-php-cli
+user@stage:/srv/deployer$ mv ./config.inc.php ./deployer-php-cli
 ```
 
 ---
 
-CONFIGURATION
--------------
+## CONFIGURATION
 
-### Project Setting:
+### Project Setting
 
 You need to set up the projects configuration such as servers, source and destination in `config.inc.php` file:
 
@@ -188,9 +192,9 @@ return [
 ];
 ```
 
-> You could refer [config.inc.php](https://github.com/yidas/deployer-php-cli/blob/master/config.inc.php) file as an example..
+> You could refer [config.inc.php](https://github.com/nueip/deployer-php-cli/blob/master/config.inc.php) file as an example..
 
-### Config Options:
+### Config Options
 
 Configuration provides many features' setting, you could customize and pick up the setting you need.
 
@@ -207,8 +211,8 @@ Configuration provides many features' setting, you could customize and pick up t
 
 To use Git into deploy task, you need to init or clone Git to the source directory at the first time:
 
-```
-$ git clone git@gitlab.com:username/project-to-deploy.git sourceDir
+```command
+user@stage:~$ git clone git@gitlab.com:username/project-to-deploy.git sourceDir
 ```
 
 |Key|Type|Description|
@@ -282,14 +286,14 @@ Commands provides you to customize deploy tasks with many trigger hooks.
 
 ### Example
 
-* Copy `project` directory form `/var/www/html/` to destination under `/var/www/html/test/`:
+- Copy `project` directory form `/var/www/html/` to destination under `/var/www/html/test/`:
 
 ```php
 'source' => '/var/www/html/project',
 'destination' => '/var/www/html/test/',
 ```
 
-* Copy all files (`*`) form `/var/www/html/project/` to destination under `/var/www/html/test/`:
+- Copy all files (`*`) form `/var/www/html/project/` to destination under `/var/www/html/test/`:
 
 ```php
 'source' => '/var/www/html/project/',
@@ -298,10 +302,9 @@ Commands provides you to customize deploy tasks with many trigger hooks.
 
 ---
 
-USAGE
------
+## USAGE
 
-```
+```command
 Usage:
   deployer [options] [arguments]
   ./deployer [options] [arguments]
@@ -320,8 +323,8 @@ Options:
 
 ### Interactive Project Select
 
-```
-$ deployer
+```command
+user@stage:~$ deployer
 
 Your available projects in configuration:
   [0] default
@@ -338,38 +341,37 @@ Successful Excuted Task: Deploy
 
 ### Non-Interactive Project Select
 
-```
-$ deployer --project="your.project.com"
+```command
+user@stage:~$ deployer --project="your.project.com"
 ```
 
 ### Skip Flows
 
 You could force to skip flows such as Git and Composer even when you enable then in config.
 
-```
-$ deployer --project="default" --skip-git --skip-composer
+```command
+user@stage:~$ deployer --project="default" --skip-git --skip-composer
 ```
 
 ### Revert & Reset back
 
 You could reset git to specified commit by using `--git-reset` option when you get trouble after newest release.
 
-```
-$ deployer --project="default" --git-reset="79616d"
+```command
+user@stage:~$ deployer --project="default" --git-reset="79616d"
 ```
 
 > This option is same as executing `git reset --hard 79616d` in source project.
 
 ---
 
-IMPLEMENTATION
---------------
+## IMPLEMENTATION
 
 Assuming `project1` is the developing project which you want to deploy.
 
 Developers must has their own site to develop, for example:
 
-```
+```bash
 # Dev host
 /var/www/html/dev/nick/project1
 /var/www/html/dev/eric/project1
@@ -377,14 +379,14 @@ Developers must has their own site to develop, for example:
 
 In general, you would has stage `project1` which the files are same as production:
 
-```
+```bash
 # Dev/Stage host
 /var/www/html/project1
 ```
 
 The purpose is that production files need to be synchronous from stage:
 
-```
+```bash
 # Production host
 /var/www/html/project1
 ```
@@ -402,10 +404,9 @@ return [
 
 After running this tool to deploy `project1`, the stage project's files would execute processes likes `git pull` then synchronise to production.
 
-
 ### Permissions Handling
 
-##### 1. Local and Remote Users
+#### 1. Local and Remote Users
 
 You could create a user on local for runing Deployer with `umask 002`. It will run process by the local user you set even you run Deployer by root:
 
@@ -419,18 +420,17 @@ return [
         ...
 ```
 
-##### 2. Application File Permissions
+#### 2. Application File Permissions
 
 Deployer uses `rsync` to deploy local source project to remote ***without*** `--no-perms`, which means that the source files' permission would keep on remote, but the files' owner would re-generate by remote user including `root` with `--no-owner --no-group`.
 
-On the remote user, you could set the user's default groud ID to `www-data` in `/etc/passwd`, which the ***local user*** generates `664/775` mod files to deploy for ***remote*** `www-data` access. 
+On the remote user, you could set the user's default groud ID to `www-data` in `/etc/passwd`, which the ***local user*** generates `664/775` mod files to deploy for ***remote*** `www-data` access.
 
 > For local user, `umask 002` could be set in `~/.bashrc` or global. Note that the permission need to apply for source files such as init from Git clone.
 
 ---
 
-CI/CD
------
+## CI/CD
 
 ### Webhook
 
@@ -445,7 +445,7 @@ return [
         'webhook' => [
             'enabled' => true,
             'provider' => 'gitlab',
-            'project' => 'yidas/deployer-php-cli',
+            'project' => 'nueip/deployer-php-cli',
             'token' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
             'branch' => 'release',
             'log' => '/tmp/deployer-webhook-project.log'
@@ -484,14 +484,14 @@ Then give the new socket to the webhook server setting, for Nginx eaxmple `/etc/
 server_name webhook.your.com;
 root /srv/deployer/deployer-php-cli/webhook;
 
-location ~ \.php$ {                                     
-    include snippets/fastcgi-php.conf;                  
-    fastcgi_param SCRIPT_FILENAME $request_filename;    
+location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_param SCRIPT_FILENAME $request_filename;
     fastcgi_pass unix:/run/php/php7.0-fpm_deployer.sock;
-}                                                                                                               
+}
 ```
 
-After a successful webhook, Deployer would prepare to process while responding the status and the result url for checking the deployment result. 
+After a successful webhook, Deployer would prepare to process while responding the status and the result url for checking the deployment result.
 
 #### Gitlab
 
@@ -499,28 +499,27 @@ After a successful webhook, Deployer would prepare to process while responding t
 
 According to above Nginx website setting, the webhook URL could be `https://webhook.your.com/gitlab`. After setting `config.inc.php` and setting up scecret token, you could give a push event to go!
 
-<img src="https://raw.githubusercontent.com/yidas/deployer-php-cli/dev_webhook/img/cicd-gitlab-webhook.png" />
+![img\cicd-gitlab-webhook.png](https://github.com/nueip/deployer-php-cli/blob/master/img/cicd-gitlab-webhook.png?raw=true)
 
 > Note: Default setting is listen `release` branch's push event to trigger.
 
 ---
 
-ADDITIONS
----------
+## ADDITIONS
 
-### Rsync without Password:  
+### Rsync without Password
 
 You can put your local user's SSH public key to destination server user for authorization.
-```
-.ssh/id_rsa.pub >> .ssh/authorized_keys
+
+```command
+user@stage:~$ cat .ssh/id_rsa.pub >> .ssh/authorized_keys
 ```
 
-### Save Binary Encode File:  
-  
-  
+### Save Binary Encode File
+
 While excuting script, if you get the error like `Exception: Zend Extension ./deployer does not exist`, you may save the script file with binary encode, which could done by using `vim`:
 
-```
+```vim
 :set ff=unix
 ```
 
@@ -529,9 +528,9 @@ While excuting script, if you get the error like `Exception: Zend Extension ./de
 For `yii2-app-advanced`, you need to enable Composer and set yii2 init command in `config.inc.php`:
 
 ```php
-'composer' => [                     
-    'enabled' => true,          
-],                                  
+'composer' => [
+    'enabled' => true,
+],
 'commands' => [
     'before' => [
         'yii2 init prod' => './init --env=Production --overwrite=All',
@@ -541,66 +540,58 @@ For `yii2-app-advanced`, you need to enable Composer and set yii2 init command i
 
 ### Minify/Uglify by Gulp
 
-#### 1. Install NPM, for Debian/Ubuntu:
+#### 1. Install NPM, for Debian/Ubuntu
 
-```
-apt-get install npm
+```command
+user@stage:~$ apt-get install npm
 ```
 
 #### 2. Install Gulp by NPM
 
-```
-npm install -g gulp
+```command
+user@stage:~$ npm install -g gulp
 ```
 
 #### 3. Create Gulp Project
 
-```
-cd /srv/tools/minify-project
-npm init
-npm install gulp --save-dev
-touch gulpfile.js
+```command
+user@stage:~$ cd /srv/tools/minify-project
+user@stage:~$ npm init
+user@stage:~$ npm install gulp --save-dev
+user@stage:~$ touch gulpfile.js
 ```
 
 #### 4. Set Gulp with packages
 
 Package: [gulp-uglify](https://www.npmjs.com/package/gulp-uglify)
 
-```
-$ npm install gulp-uglify --save-dev
-$ npm install pump --save-dev
+```command
+user@stage:~$ npm install --global --no-optional gulp gulp-uglify-es
 ```
 
 `gulpfile.js`:
 
 ```javascript
-var gulp = require('gulp');
-var uglify = require('gulp-uglify');
-var pump = require('pump');
+let gulp = require('gulp');
+let uglify = require('gulp-uglify-es').default;
 var assetPath = '/srv/your.project.com/assets/js';
 
-gulp.task('compress', function (callback) {
-  pump([
-        gulp.src(assetPath+'/**/*.js'),
-        uglify(),
-        gulp.dest(assetPath)
-    ],
-    callback
-  );
+gulp.task('compress', function () {
+    return gulp.src(assetPath + '/**/*.js')
+        .pipe(uglify())
+        .pipe(gulp.dest(assetPath));
 });
 ```
 
 #### 5. Set Gulp Process into Deployer
 
-```
+```php
 'source' => '/srv/project',
-'commands' => [                                                    
-    'before' => [                                                  
-        'Minify inner JS' => [                                     
-            'command' => 'cd /srv/tools/minify-project; gulp compress',                                                 
-        ],                                                          
-    ],                                                             
-],  
+'commands' => [
+    'before' => [
+        'Minify inner JS' => [
+            'command' => 'cd /srv/tools/minify-project; gulp compress',
+        ],
+    ],
+],
 ```
-
-

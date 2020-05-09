@@ -115,9 +115,8 @@ $serverEnv = (isset($argv[1])) ? $argv[1] : 'default';
 try {
 
     // Check for server list
-    if (!isset($config['remoteServers'][$serverEnv]) 
-        || !$config['remoteServers'][$serverEnv]) {
-        
+    if (!isset($config['remoteServers'][$serverEnv]) || !$config['remoteServers'][$serverEnv]) {
+
         throw new Exception("No server host in group: {$serverEnv}");
     }
 
@@ -125,13 +124,13 @@ try {
     $remotePath = $config['remotePath'];
 
     // File existence check
-    if (strlen(trim($sourceFile))==0) {
+    if (strlen(trim($sourceFile)) == 0) {
 
         throw new Exception('None of file input');
     }
 
     // Check for type of file / directory
-    if (!is_file($sourceFile) && !is_dir($sourceFile) ) {
+    if (!is_file($sourceFile) && !is_dir($sourceFile)) {
 
         throw new Exception('Source file is not a file or directory');
     }
@@ -144,15 +143,15 @@ try {
 
     // Directory locate
     $result = shell_exec("cd {$config['sourceFile']};");
-        
+
     // Git process
     if ($config['gitEnabled']) {
-        
+
         echo "Processing Git...\n";
         $cmd = ($config['gitCheckoutEnabled'])
             ? "git checkout - .;"
             : "";
-        $cmd .= ($config['gitBranch']) 
+        $cmd .= ($config['gitBranch'])
             ? "git pull origin {$config['gitBranch']}"
             : "git pull";
 
@@ -167,7 +166,7 @@ try {
 
     // Composer process
     if ($config['composerEnabled']) {
-        
+
         echo "/* --- Composer Process Start --- */\n";
         $cmd = $config['composerCommand'];
 
@@ -182,8 +181,8 @@ try {
     // Commands process
     if ($config['commandsBeforeDeploy']) {
 
-        foreach ((array)$config['commandsBeforeDeploy'] as $key => $cmd) {
-            
+        foreach ((array) $config['commandsBeforeDeploy'] as $key => $cmd) {
+
             echo "/* --- Command:{$key} Process Start --- */\n";
 
             // Format command
@@ -202,37 +201,38 @@ try {
 
         // Info display
         echo "/* --- Rsync Process Info --- */\n";
-        echo '[Process]: '.($key+1)."\n";
-        echo '[Group  ]: '.$serverEnv."\n";
-        echo '[Server ]: '.$server."\n";
-        echo '[User   ]: '.$config['remoteUser']."\n";
-        echo '[Source ]: '.$sourceFile."\n";
-        echo '[Remote ]: '.$remotePath."\n";
+        echo '[Process]: ' . ($key + 1) . "\n";
+        echo '[Group  ]: ' . $serverEnv . "\n";
+        echo '[Server ]: ' . $server . "\n";
+        echo '[User   ]: ' . $config['remoteUser'] . "\n";
+        echo '[Source ]: ' . $sourceFile . "\n";
+        echo '[Remote ]: ' . $remotePath . "\n";
         echo "/* -------------------------- */\n";
         echo "Processing Rsync...\n";
 
 
         /* Command builder */
-        
+
         $cmd = 'rsync ' . $config['rsyncParams'];
 
         // Add exclude
         $excludeFiles = $config['excludeFiles'];
-        foreach ((array)$excludeFiles as $key => $file) {
+        foreach ((array) $excludeFiles as $key => $file) {
             $cmd .= " --exclude \"{$file}\"";
         }
 
         // Rsync shell command
-        $cmd = sprintf("%s %s %s@%s:%s",
+        $cmd = sprintf(
+            "%s %s %s@%s:%s",
             $cmd,
             $sourceFile,
             $config['remoteUser'],
             $server,
-            $remotePath 
+            $remotePath
         );
-        
-        echo '[Command]: '.$cmd."\n";
-        
+
+        echo '[Command]: ' . $cmd . "\n";
+
         // Shell execution
         $result = shell_exec($cmd);
 
@@ -245,10 +245,7 @@ try {
     }
 
     echo "\r\n";
-    
 } catch (Exception $e) {
 
-    die('ERROR:'.$e->getMessage()."\n");
+    die('ERROR:' . $e->getMessage() . "\n");
 }
-
-

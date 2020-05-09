@@ -27,23 +27,23 @@ trait ShellConsole
      * @param integer $errorCode
      * @return boolean Last command success or not
      */
-    private function _exec($cmd, &$resultText='', &$output='', &$errorCode='')
+    private function _exec($cmd, &$resultText = '', &$output = '', &$errorCode = '')
     {
         $cmd = trim($cmd);
         $cmd = rtrim($cmd, ';');
-    
+
         // stdout
         $cmd = "{$cmd} 2>&1;";
         exec($cmd, $output, $errorCode);
-    
+
         // Build result text
         foreach ($output as $key => $string) {
             $resultText .= "{$string}\r\n";
         }
-    
+
         return (!$errorCode) ? true : false;
     }
-    
+
     /** 
      * Get username
      * 
@@ -52,7 +52,7 @@ trait ShellConsole
     private function _getUser()
     {
         $this->_exec('echo $USER;', $user);
-        
+
         return trim($user);
     }
 

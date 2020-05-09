@@ -1,6 +1,7 @@
 <?php
+
 /**
- * @see https://github.com/yidas/deployer-php-cli
+ * @see https://github.com/nueip/deployer-php-cli
  */
 return [
     'servers' => [

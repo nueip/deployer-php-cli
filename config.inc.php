@@ -1,9 +1,8 @@
 <?php
 
 /**
- * @see https://github.com/yidas/deployer-php-cli
+ * @see https://github.com/nueip/deployer-php-cli
  */
-
 return [
     // This project config processes deployment only for simple usage
     'default' => [
@@ -45,7 +44,7 @@ return [
             'enabled' => false,
             'name' => 'PHPUnit',
             'type' => 'phpunit',
-            // CodeIgniter 3 for example (https://github.com/yidas/codeigniter-phpunit)
+            // CodeIgniter 3 for example (https://github.com/nueip/codeigniter-phpunit)
             'command' => './application/vendor/bin/phpunit',
             'configuration' => './application/phpunit.xml',
         ],
@@ -64,7 +63,7 @@ return [
         'webhook' => [
             'enabled' => false,
             'provider' => 'gitlab',
-            'project' => 'yidas/deployer-php-cli',
+            'project' => 'nueip/deployer-php-cli',
             'token' => 'thisistoken',
         ],
         'verbose' => false,

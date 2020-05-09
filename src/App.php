@@ -2,38 +2,39 @@
 
 /**
  * Application
- * 
- * @since       1.10.2
+ *
  * @author      Nick Tsai <myintaer@gmail.com>
+ *
+ * @since       1.10.2
  */
 class App
 {
     const VERSION = '1.12.0';
-    
-    function __construct() 
+
+    public function __construct()
     {
         // Loader
-        require __DIR__. '/ShellConsole.php';
-        require __DIR__. '/Deployer.php';
-        require __DIR__. '/GetOpt.php';
+        require __DIR__ . '/ShellConsole.php';
+        require __DIR__ . '/Deployer.php';
+        require __DIR__ . '/GetOpt.php';
     }
-    
+
     /**
      * @param array $configList
      */
-    public function run(Array $configList, Array $argv)
+    public function run(array $configList, array $argv)
     {
         // $projectKey = (isset($argv[1])) ? $argv[1] : 'default';
 
-        /**
+        /*
          * Options definition
          */
-        $shortopts  = "";
+        $shortopts = "";
         $shortopts .= "h";
         $shortopts .= "p:";
         $shortopts .= "v";
 
-        $longopts  = array(
+        $longopts = [
             "project:",
             "skip-git",
             "skip-composer",
@@ -43,21 +44,21 @@ class App
             "configuration",
             "help",
             "version",
-        );
+        ];
 
         try {
 
             // GetOpt
             $getOpt = new GetOpt($shortopts, $longopts);
             // var_dump($getOpt->getOptions());
-    
+
             $projectKey = $getOpt->get(['project', 'p']);
             $showConfig = $getOpt->has(['config', 'configuration']);
             $showHelp = $getOpt->has(['help', 'h']);
             $showVersion = $getOpt->has(['version']);
 
-            /**
-             * Exception before App 
+            /*
+             * Exception before App
              */
             // Help
             if ($showHelp) {
@@ -65,7 +66,7 @@ class App
                 $this->_echoVersion();
                 echo "\r\n";
                 // Load view with CLI auto display
-                require __DIR__. '/views/help.php';
+                require __DIR__ . '/views/help.php';
                 echo "\r\n";
                 return;
             }
@@ -75,7 +76,7 @@ class App
                 $this->_echoVersion();
                 return;
             }
-    
+
             // Check project config
             if (!isset($configList[$projectKey])) {
 
@@ -86,17 +87,17 @@ class App
                 echo "  Bootstrap directory: {$fileLocate}. \r\n";
                 echo "  Usage manual: `deployer --help`\r\n";
                 echo "\r\n";
-    
+
                 // First time flag
-                $isFirstTime = ($projectKey===null) ? true : false;
-    
+                $isFirstTime = ($projectKey === null) ? true : false;
+
                 while (!isset($configList[$projectKey])) {
-                    
+
                     // Not in the first round
                     if (!$isFirstTime) {
                         echo "ERROR: The `{$projectKey}` project doesn't exist in your configuration.\n\n";
                     }
-    
+
                     // Available project list
                     echo "Your available projects in configuration:\n";
                     $projectKeyMap = [];
@@ -127,17 +128,17 @@ class App
             }
 
             // Config initialized
-            $defaultConfig = require __DIR__. '/default-config.inc.php';
+            $defaultConfig = require __DIR__ . '/default-config.inc.php';
             $config = array_replace_recursive($defaultConfig, $configList[$projectKey]);
-            // Add `projectKey` key to the current config 
+            // Add `projectKey` key to the current config
             $config['projectKey'] = $projectKey;
 
             // Rewrite config
-            $config['git']['enabled'] = ($getOpt->has('skip-git')) 
+            $config['git']['enabled'] = ($getOpt->has('skip-git'))
                 ? false : $this->_val($config, ['git', 'enabled']);
-            $config['composer']['enabled'] = ($getOpt->has('skip-composer')) 
+            $config['composer']['enabled'] = ($getOpt->has('skip-composer'))
                 ? false : $this->_val($config, ['composer', 'enabled']);
-            $config['verbose'] = ($getOpt->has(['verbose', 'v'])) 
+            $config['verbose'] = ($getOpt->has(['verbose', 'v']))
                 ? true : $this->_val($config, ['verbose']);
             // Other config
             $config['git']['reset'] = $getOpt->get('git-reset');
@@ -145,8 +146,8 @@ class App
             // Initial Deployer
             $deployer = new Deployer($config);
 
-            /**
-             * Exception before Deployer run 
+            /*
+             * Exception before Deployer run
              */
             if ($showConfig) {
                 echo "The `{$projectKey}` project's configuration is below:\n";
@@ -156,7 +157,6 @@ class App
 
             // Run Deployer
             $deployer->run();
-        
         } catch (Exception $e) {
 
             die("ERROR:{$e->getMessage()}\n");
@@ -174,28 +174,26 @@ class App
 
     /**
      * Var checker
-     * 
-     * @param mixed Variable
-     * @param array Variable array level ['level1', 'key']
-     * @return mixed value of specified variable 
+     *
+     * @param  mixed Variable
+     * @param  array Variable   array level ['level1', 'key']
+     * @return mixed value of specified variable
      */
-    protected function _val($var, $arrayLevel=[])
+    protected function _val($var, $arrayLevel = [])
     {
         if (!isset($var)) {
-            
             return null;
         }
-        
-        foreach ($arrayLevel as $key => $level) {
-            
+
+        foreach ($arrayLevel as $level) {
+
             if (!isset($var[$level])) {
-                
                 return null;
             }
 
             $var = &$var[$level];
         }
-        
+
         return $var;
     }
 }

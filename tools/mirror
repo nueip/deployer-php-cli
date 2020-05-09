@@ -72,12 +72,14 @@ $dir = trim(shell_exec("pwd -P"));
 try {
 
     // File existence check
-    if (strlen(trim($file))==0)
+    if (strlen(trim($file)) == 0) {
         throw new Exception('None of file input');
-    
+    }
+
     // Check $argv likes asterisk
-    if (isset($argv[3])) 
+    if (isset($argv[3])) {
         throw new Exception('Invalid arguments input');
+    }
 
     /**
      * Validating file name input
@@ -91,37 +93,32 @@ try {
      */
     $reg = '/(\w\/|\*|^\/)/';
 
-    preg_match($reg,$file,$matches);
+    preg_match($reg, $file, $matches);
 
     if ($matches) {
-
-        //print_r($matches);
-
         throw new Exception('Invalid file name input');
     }
 
     // Check for server list
-    if (!isset($config['remoteServers'][$serverEnv]) 
-        || !$config['remoteServers'][$serverEnv]) {
-
+    if (!isset($config['remoteServers'][$serverEnv]) || !$config['remoteServers'][$serverEnv]) {
         throw new Exception("No server host in group: {$serverEnv}");
-    }  
-    
+    }
+
     // File or directory of source definition
-    $this_file = $dir.'/'.$file;
+    $this_file = $dir . '/' . $file;
 
     // Check for type of link
-    if (is_link($this_file))
+    if (is_link($this_file)) {
         throw new Exception('File input is symblic link');
+    }
 
     // Check for type of file / directory
-    if (!is_file($this_file) && !is_dir($this_file) )
+    if (!is_file($this_file) && !is_dir($this_file)) {
         throw new Exception('File input is not a file or directory');
-    
-    // Check for syntax if is PHP
-    if ( preg_match("/\.php$/i",$file) 
-        && !preg_match("/No syntax errors detected/i", shell_exec("php -l ".$this_file))  ) {
+    }
 
+    // Check for syntax if is PHP
+    if (preg_match("/\.php$/i", $file) && !preg_match("/No syntax errors detected/i", shell_exec("php -l " . $this_file))) {
         throw new Exception('PHP syntax error!');
     }
 
@@ -129,42 +126,42 @@ try {
     foreach ($config['remoteServers'][$serverEnv] as $key => $server) {
 
         // Info display
-        echo '/* --- Process Start ---  */'."\n";
-        echo '[Process]: '.($key+1)."\n";
-        echo '[Group  ]: '.$serverEnv."\n";
-        echo '[Server ]: '.$server."\n";
-        echo '[User   ]: '.$config['remoteUser']."\n";
+        echo '/* --- Process Start ---  */' . "\n";
+        echo '[Process]: ' . ($key + 1) . "\n";
+        echo '[Group  ]: ' . $serverEnv . "\n";
+        echo '[Server ]: ' . $server . "\n";
+        echo '[User   ]: ' . $config['remoteUser'] . "\n";
 
 
         /* Command builder */
-           
+
         $cmd = 'rsync ' . $config['rsyncParams'];
 
         // Rsync shell command
-        $cmd = sprintf("%s %s %s@%s:%s",
+        $cmd = sprintf(
+            "%s %s %s@%s:%s",
             $cmd,
             $file,
             $config['remoteUser'],
             $server,
-            $dir 
+            $dir
         );
 
-        echo '[Command]: '.$cmd."\n";
-        
+        echo '[Command]: ' . $cmd . "\n";
+
         // Shell execution
         $result = shell_exec($cmd);
 
-        echo '[Message]: '."\n".$result;
+        echo '[Message]: ' . "\n" . $result;
 
-        echo '/* --- /Process End ---  */'."\n";
+        echo '/* --- /Process End ---  */' . "\n";
         echo "\r\n";
 
         sleep($config['sleepSeconds']);
     }
 
     echo "\r\n";
-    
 } catch (Exception $e) {
 
-    die('ERROR:'.$e->getMessage()."\n");
+    die('ERROR:' . $e->getMessage() . "\n");
 }

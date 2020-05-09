@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Deployer
  *
@@ -14,7 +15,7 @@
 class Deployer
 {
     use ShellConsole;
-    
+
     private $_config;
 
     /**
@@ -23,12 +24,12 @@ class Deployer
      * @var string Text
      */
     private $_response;
-    
+
     function __construct($config)
     {
         $this->_setConfig($config);
     }
-    
+
     /**
      * Run
      *
@@ -40,21 +41,21 @@ class Deployer
 
         // Check config
         $this->_checkConfig();
-       
+
         ob_implicit_flush();
 
         // Local user check
         /**
          * @todo Switch user
          */
-        if ($config['user']['local'] && $config['user']['local']!=$this->_getUser()) {
+        if ($config['user']['local'] && $config['user']['local'] != $this->_getUser()) {
             $this->_print("Access denied, please switch to local user: `{$config['user']['local']}` from config");
             exit;
         }
 
         // cd into source directory
         $this->_cmd("cd {$this->_config['source']};");
-        
+
         // Project selected info
         $this->_result("Selected Project: {$config['projectKey']}");
 
@@ -74,7 +75,7 @@ class Deployer
         $costSecond = abs(microtime(true) - $startSecond);
         $costSecond = number_format($costSecond, 2, ".", "");
         $this->_result("Total Cost Time: {$costSecond}s");
-        
+
         return $this->_response;
     }
 
@@ -95,15 +96,15 @@ class Deployer
             'branch' => 'master',
             'submodule' => false,
         ];
-        
+
         // Config init
         $config = array_merge($defaultConfig, $this->_config['git']);
-        
+
         // Check enabled
-        if (!$config || empty($config['enabled']) ) {
+        if (!$config || empty($config['enabled'])) {
             return;
         }
-        
+
         // Git process
         $this->_verbose("");
         $this->_verbose("### Git Process Start");
@@ -119,10 +120,10 @@ class Deployer
             $this->checkError($result, $output);
         }
         // Git pull
-        $cmd = ($config['branch']) 
+        $cmd = ($config['branch'])
             ? "git pull origin {$config['branch']}"
             : "git pull";
-        $result = $this->_cmd($cmd, $output, $path);  
+        $result = $this->_cmd($cmd, $output, $path);
         // Common error check
         $this->checkError($result, $output);
         $this->_verbose("### Git Process Pull");
@@ -143,7 +144,7 @@ class Deployer
             $this->_verbose($result);
             // Common error check
             $this->checkError($result, $output);
-        } 
+        }
 
         $this->_verbose("### /Git Process End\n");
 
@@ -158,15 +159,15 @@ class Deployer
         if (!isset($this->_config['composer'])) {
             return;
         }
-        
+
         // Composer Config
         $config = &$this->_config['composer'];
-        
+
         // Check enabled
-        if (!$config || empty($config['enabled']) ) {
+        if (!$config || empty($config['enabled'])) {
             return;
         }
-        
+
         // Composer process
         $this->_verbose("");
         $this->_verbose("### Composer Process Start");
@@ -175,13 +176,13 @@ class Deployer
         $path = (isset($config['path'])) ? $config['path'] : './';
         // Alternative multiple composer option
         $paths = is_array($path) ? $path : [$path];
-        $isSinglePath = (count($paths)<=1) ? true : false;
+        $isSinglePath = (count($paths) <= 1) ? true : false;
 
         // Each composer path with same setting
         foreach ($paths as $key => $path) {
-            
+
             $path = $this->_getAbsolutePath($path);
-        
+
             $cmd = $config['command'];
             // Shell execution
             $result = $this->_cmd($cmd, $output, $path);
@@ -204,7 +205,6 @@ class Deployer
                     $this->_error("Composer #{$key} with path: {$path}");
                 }
             }
-
         }
 
         $this->_verbose("### /Composer Process End\n");
@@ -215,22 +215,22 @@ class Deployer
     /**
      * Test Process
      */
-    public function runTest($config=null)
+    public function runTest($config = null)
     {
         if (!$config) {
             if (!isset($this->_config['test'])) {
                 return;
             }
-            
+
             // Test Config
             $config = &$this->_config['test'];
         }
-        
+
         // Check enabled
-        if (!$config || empty($config['enabled']) ) {
+        if (!$config || empty($config['enabled'])) {
             return;
         }
-        
+
         // Commend required
         if (!isset($config['command'])) {
             $this->_error("Test (Config `command` not found)");
@@ -248,14 +248,14 @@ class Deployer
         $configuration = (isset($config['configuration'])) ? $this->_getAbsolutePath($config['configuration']) : null;
 
         switch ($type = isset($config['type']) ? $config['type'] : null) {
-            
+
             case 'phpunit':
             default:
-                
+
                 $cmd = ($configuration) ? "{$cmd} -c {$configuration}" : $cmd;
                 break;
         }
-        
+
         // Shell execution
         $result = $this->_cmd($cmd, $output);
 
@@ -278,7 +278,7 @@ class Deployer
         if (!isset($this->_config['tests'])) {
             return;
         }
-        
+
         // Tests Config
         $configs = &$this->_config['tests'];
 
@@ -301,10 +301,10 @@ class Deployer
         if (!isset($this->_config['commands'])) {
             return;
         }
-        
+
         // Commands Config
         $config = &$this->_config['commands'];
-        
+
         // Check enabled
         if (!isset($config[$trigger]) || !is_array($config[$trigger])) {
             return;
@@ -319,10 +319,10 @@ class Deployer
 
             // Format compatibility
             $cmd = is_array($cmd) ? $cmd : ['command' => $cmd];
-            
+
             $this->_verbose("");
             $this->_verbose("### Command:{$key} Process Start");
-            
+
             // Format command
             $command = "{$cmd['command']};";
             $result = $this->_cmd($command, $output, true);
@@ -332,7 +332,7 @@ class Deployer
                 $this->_verbose($output);
                 $this->_error("Command:{$key}");
             }
-            
+
             $this->_verbose("### Command:{$key} Process Result");
             $this->_verbose($output);
             $this->_verbose("### Command:{$key} Process Start");
@@ -347,7 +347,7 @@ class Deployer
     public function runDeploy()
     {
         // Config
-        $config = isset( $this->_config['rsync']) ?  $this->_config['rsync'] : [];
+        $config = isset($this->_config['rsync']) ?  $this->_config['rsync'] : [];
 
         // Default config
         $defaultConfig = [
@@ -355,10 +355,10 @@ class Deployer
             'params' => '-av --delete',
             'timeout' => 15,
         ];
-        
+
         // Config init
         $config = array_merge($defaultConfig, $this->_config['rsync']);
-        
+
         // Check enabled
         if (!$config['enabled']) {
             return;
@@ -371,23 +371,23 @@ class Deployer
 
         // Add exclude
         $excludeFiles = $this->_config['exclude'];
-        foreach ((array)$excludeFiles as $key => $file) {
+        foreach ((array) $excludeFiles as $key => $file) {
             $rsyncCmd .= " --exclude \"{$file}\"";
         }
 
         // IdentityFile
-        $identityFile = isset($config['identityFile']) 
-            ? $config['identityFile'] 
+        $identityFile = isset($config['identityFile'])
+            ? $config['identityFile']
             : null;
         if ($identityFile && file_exists($identityFile)) {
             $rsyncCmd .= " -e \"ssh -i {$identityFile}\"";
-        } 
-        elseif ($identityFile) {
+        } elseif ($identityFile) {
             $this->_error("Deploy (IdentityFile not found: {$identityFile})");
         }
 
         // Common parameters
-        $rsyncCmd = sprintf("%s --timeout=%d %s",
+        $rsyncCmd = sprintf(
+            "%s --timeout=%d %s",
             $rsyncCmd,
             $config['timeout'],
             $this->_config['source']
@@ -396,26 +396,27 @@ class Deployer
         /**
          * Process
          */
-        foreach ($this->_config['servers'] as $key => $server) {         
+        foreach ($this->_config['servers'] as $key => $server) {
 
             // Info display
             $this->_verbose("");
             $this->_verbose("### Rsync Process Info");
-            $this->_verbose('[Process]: '.($key+1));
-            $this->_verbose('[Server ]: '.$server);
-            $this->_verbose('[User   ]: '.$this->_config['user']['remote']);
-            $this->_verbose('[Source ]: '.$this->_config['source']);
-            $this->_verbose('[Remote ]: '.$this->_config['destination']);
+            $this->_verbose('[Process]: ' . ($key + 1));
+            $this->_verbose('[Server ]: ' . $server);
+            $this->_verbose('[User   ]: ' . $this->_config['user']['remote']);
+            $this->_verbose('[Source ]: ' . $this->_config['source']);
+            $this->_verbose('[Remote ]: ' . $this->_config['destination']);
 
             // Rsync destination building for each server
-            $cmd = sprintf("%s --no-owner --no-group %s@%s:%s",
+            $cmd = sprintf(
+                "%s --no-owner --no-group %s@%s:%s",
                 $rsyncCmd,
                 $this->_config['user']['remote'],
                 $server,
-                $this->_config['destination'] 
+                $this->_config['destination']
             );
-            
-            $this->_verbose('[Command]: '.$cmd);
+
+            $this->_verbose('[Command]: ' . $cmd);
 
             // Shell execution
             $result = $this->_cmd($cmd, $output);
@@ -433,13 +434,12 @@ class Deployer
             if (!$result) {
                 // Error
                 $this->_error("Deploy to {$server}");
-
             } else {
 
                 // Sleep option per each deployed server
                 if (isset($config['sleepSeconds'])) {
-                    
-                    sleep((int)$config['sleepSeconds']);
+
+                    sleep((int) $config['sleepSeconds']);
                 }
 
                 $this->_done("Deploy to {$server}");
@@ -474,20 +474,20 @@ class Deployer
             throw new Exception('Config not set: source', 400);
         }
 
-        $config['user'] = (isset($config['user'])) 
+        $config['user'] = (isset($config['user']))
             ? $config['user']
             : [];
 
         $config['user']['local'] = is_string($config['user']) ? $config['user'] : $config['user']['local'];
-        $config['user']['local'] = (isset($config['user']['local']) && $config['user']['local']) 
+        $config['user']['local'] = (isset($config['user']['local']) && $config['user']['local'])
             ? $config['user']['local']
             : $this->_getUser();
 
-        $config['user']['remote'] = (isset($config['user']['remote']) && $config['user']['remote']) 
+        $config['user']['remote'] = (isset($config['user']['remote']) && $config['user']['remote'])
             ? $config['user']['remote']
             : $config['user']['local'];
 
-        $config['destination'] = (isset($config['destination'])) 
+        $config['destination'] = (isset($config['destination']))
             ? $config['destination']
             : $config['source'];
 
@@ -499,14 +499,14 @@ class Deployer
         $config = &$this->_config;
 
         // Check for type of file / directory
-        if (!is_dir($config['source']) ) {
-        
+        if (!is_dir($config['source'])) {
+
             throw new Exception('Source file is not a directory (project)');
         }
-    
+
         // Check for type of link
         if (is_link($config['source'])) {
-    
+
             throw new Exception('File input is symblic link');
         }
     }
@@ -541,15 +541,15 @@ class Deployer
      * @param $path
      * @return string Path
      */
-    private function _getAbsolutePath($path=null)
-    {   
+    private function _getAbsolutePath($path = null)
+    {
         // Is absolute path
-        if (strpos($path, '/')===0 && file_exists($path)) {
+        if (strpos($path, '/') === 0 && file_exists($path)) {
 
             return $path;
         }
-        
-        return ($path) ? $this->_config['source'] ."/{$path}" : $this->_config['source'];
+
+        return ($path) ? $this->_config['source'] . "/{$path}" : $this->_config['source'];
     }
 
     /** 
@@ -560,14 +560,14 @@ class Deployer
      * @param bool|string cd into source directory first (CentOS issue), string for customization
      * @return mixed Response
      */
-    private function _cmd($cmd, &$resultText='', $cdSource=false)
+    private function _cmd($cmd, &$resultText = '', $cdSource = false)
     {
         // Clear rtrim
         $cmd = rtrim($cmd, ';');
-        
-        if ($cdSource) { 
+
+        if ($cdSource) {
             // Get path with the determination
-            $path = ($cdSource===true) ? $this->_config['source'] : $cdSource;
+            $path = ($cdSource === true) ? $this->_config['source'] : $cdSource;
             $cmd = "cd {$path};{$cmd}";
         }
 
@@ -579,7 +579,7 @@ class Deployer
      * 
      * @param string $string
      */
-    private function _result($string='')
+    private function _result($string = '')
     {
         $this->_response .= $string . "\n";
         $this->_print($string);
@@ -590,7 +590,7 @@ class Deployer
      * 
      * @param string $string
      */
-    private function _verbose($string='')
+    private function _verbose($string = '')
     {
         if (isset($this->_config['verbose']) && $this->_config['verbose']) {
             $this->_result($string);
@@ -607,7 +607,7 @@ class Deployer
     private function checkError($result, $output)
     {
         if (!$result) {
-            
+
             $this->_verbose($output);
             $this->_error("Git");
         }
