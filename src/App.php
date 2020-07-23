@@ -1,5 +1,7 @@
 <?php
 
+defined('BASEPATH') OR exit('No direct script access allowed');
+
 /**
  * Application
  *
@@ -142,6 +144,24 @@ class App
                 ? true : $this->_val($config, ['verbose']);
             // Other config
             $config['git']['reset'] = $getOpt->get('git-reset');
+
+            if ($config['autoscaling']['enabled']) {
+                $hookTime = time() - ($config['autoscaling']['expired'] ?? 0);
+                $hookDirDef = implode(DIRECTORY_SEPARATOR, [WEBHOOK . 'config', $projectKey, '']);
+                $hookDir = $config['autoscaling']['hookDir'] ?? $hookDirDef;
+                if (is_dir($hookDir)) {
+                    $scanDir = array_diff(scandir($hookDir), ['.', '..']);
+                    foreach ($scanDir as $hookFile) {
+                        $fileName = basename($hookFile, '.json');
+                        $filePath = $hookDir . $hookFile;
+                        $hookServer = json_decode(file_get_contents($filePath), true);
+                        if ($hookTime <= $hookServer['time']) {
+                            $config['autoscaling']['server'][$fileName] = $hookServer;
+                            $config['servers'][] = $hookServer['ip'];
+                        }
+                    }
+                }
+            }
 
             // Initial Deployer
             $deployer = new Deployer($config);

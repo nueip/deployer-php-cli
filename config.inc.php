@@ -17,6 +17,9 @@ return [
         'servers' => [
             '127.0.0.1',
         ],
+        'autoscaling' => [
+            'enabled' => true,
+        ],
         'user' => [
             'local' => '',
             'remote' => '',

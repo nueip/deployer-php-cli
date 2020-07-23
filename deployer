@@ -19,8 +19,15 @@
  *  $ ./deployer --project="default"    // Non-Interactive Project Select
  */
 
+
+define('ROOT', __DIR__ . DIRECTORY_SEPARATOR);
+
+define('BASEPATH', ROOT . 'src' . DIRECTORY_SEPARATOR);
+
+define('WEBHOOK', ROOT . 'webhook' . DIRECTORY_SEPARATOR);
+
 // App loader
-require __DIR__. '/src/App.php';
+require BASEPATH . 'App.php';
 
 
 /* Bootstrap */
@@ -29,7 +36,7 @@ require __DIR__. '/src/App.php';
 // ini_set("display_errors", 1);
 
 /* Config List Handler */
-$configList = require __DIR__. '/config.inc.php';
+$configList = require ROOT . 'config.inc.php';
 // print_r($configList);
 
 $argv = isset($argv) ? $argv : [];

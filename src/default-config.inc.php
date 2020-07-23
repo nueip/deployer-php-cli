@@ -7,6 +7,11 @@ return [
     'servers' => [
         '127.0.0.1',
     ],
+    'autoscaling' => [
+        'enabled' => false,
+        'hookDir' => null,
+        'expired' => 30,
+    ],
     'user' => [
         'local' => '',
         'remote' => '',
