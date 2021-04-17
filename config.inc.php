@@ -68,4 +68,32 @@ return [
         ],
         'verbose' => false,
     ],
+    // This project config processes deploy to GKE
+    'deployToGKE' => [
+        'git' => [
+            'enabled' => false,
+        ],
+        'rsync' => [
+            'enabled' => false,
+        ],
+        'gke' => [
+            'enabled' => true,
+            'projectId' => 'gcp-deploy',
+            'cluster' => 'gke-cluster',
+            'region' => 'asia-east1',
+            'docker' => [
+                'name' => 'backend-docker',
+                'tag' => date('Ymd.His'),
+                'git' => [
+                    'url' => 'https://<username>:<deploy_token>@gitlab.com/tanuki/awesome_project.git',
+                    'branch' => 'release',
+                ],
+            ],
+            'k8s' => [
+                'namespace' => 'default',
+                'deployment' => 'backend-deploy',
+                'container' => 'backend-app',
+            ],
+        ],
+    ],
 ];
