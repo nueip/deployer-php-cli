@@ -35,6 +35,25 @@ return [
         'timeout' => 60,
         'identityFile' => null,
     ],
+    'gke' => [
+        'enabled' => false,
+        'projectId' => '',
+        'cluster' => '',
+        'region' => '',
+        'docker' => [
+            'name' => '',
+            'tag' => date('Ymd.His'),
+            'git' => [
+                'url' => '',
+                'branch' => '',
+            ],
+        ],
+        'k8s' => [
+            'namespace' => '',
+            'deployment' => '',
+            'container' => '',
+        ],
+    ],
     'commands' => [
         'before' => [
             '',

@@ -69,6 +69,7 @@ class Deployer
         $this->runTests();
         $this->runCommands('before');
         $this->runDeploy();
+        $this->runDeployGke();
         $this->runCommands('after');
 
         // Total cost time end
@@ -450,6 +451,170 @@ class Deployer
     }
 
     /**
+     * Deploy GKE Process
+     *
+     * @return void
+     */
+    public function runDeployGke()
+    {
+        // Config
+        $config = isset($this->_config['gke']) ?  $this->_config['gke'] : [];
+
+        // Check enabled
+        if (!$config['enabled']) {
+            return;
+        }
+
+        $projectId = $config['projectId'];
+        $cluster = $config['cluster'];
+        $region = $config['region'];
+
+        $imageName = $config['docker']['name'];
+        $imageTag = $config['docker']['tag'];
+
+        $gitUrl = $config['docker']['git']['url'];
+        $gitBranch = $config['docker']['git']['branch'];
+
+        $namespace = $config['k8s']['namespace'];
+        $deployment = $config['k8s']['deployment'];
+        $container = $config['k8s']['container'];
+
+        $gcrImage = "gcr.io/$projectId/$imageName";
+
+
+        // Deploy GKE process
+        $this->_verbose("");
+        $this->_verbose("### Deploy GKE Process Start");
+
+        /**
+         * Docker build process
+         */
+        // Build command
+        $cmd = ["docker build --no-cache"];
+        $cmd[] = "--build-arg SHORT_SHA_ARG=$imageTag";
+        $cmd[] = "--tag $gcrImage:$imageTag";
+        $cmd[] = "--tag $gcrImage:latest";
+        $cmd[] = "$gitUrl#$gitBranch";
+
+        $cmd = implode(' ', $cmd);
+
+        $this->_verbose("[Command]: $cmd");
+
+        // Shell execution
+        $output = '';
+        $result = $this->_cmd($cmd, $output);
+
+        // Check
+        if (!$result) {
+            $this->_verbose($output);
+            $this->_error("Docker build Process Failed");
+        }
+
+        $this->_verbose("### Docker build Process Result");
+        $this->_verbose("----------------------------");
+        $this->_verbose($output);
+        $this->_verbose("----------------------------");
+        $this->_verbose("");
+
+        /**
+         * Docker push process
+         */
+        // Push command
+        $cmd = "docker push $gcrImage:$imageTag && docker push $gcrImage:latest";
+
+        $this->_verbose("[Command]: $cmd");
+
+        // Shell execution
+        $output = '';
+        $result = $this->_cmd($cmd, $output);
+
+        // Check
+        if (!$result) {
+            $this->_verbose($output);
+            $this->_error("Docker push Process Failed");
+        }
+
+        $this->_verbose("### Docker push Process Result");
+        $this->_verbose("----------------------------");
+        $this->_verbose($output);
+        $this->_verbose("----------------------------");
+        $this->_verbose("");
+
+        /**
+         * Connect to GKE
+         */
+        $cmd = "gcloud container clusters get-credentials $cluster --region $region --project $projectId";
+
+        $this->_verbose("[Command]: $cmd");
+
+        // Shell execution
+        $output = '';
+        $result = $this->_cmd($cmd, $output);
+
+        // Check
+        if (!$result) {
+            $this->_verbose($output);
+            $this->_error("Connect to GKE Process Failed");
+        }
+
+        $this->_verbose("### Connect to GKE Process Result");
+        $this->_verbose("----------------------------");
+        $this->_verbose($output);
+        $this->_verbose("----------------------------");
+        $this->_verbose("");
+
+        /**
+         * Kubectl set image process
+         */
+        // Set image command
+        $cmd = "kubectl set image deployment $deployment $container=$gcrImage:$imageTag --namespace=$namespace --record";
+
+        $this->_verbose("[Command]: $cmd");
+
+        // Shell execution
+        $output = '';
+        $result = $this->_cmd($cmd, $output);
+
+        // Check
+        if (!$result) {
+            $this->_verbose($output);
+            $this->_error("Kubectl set image Process Failed");
+        }
+
+        $this->_verbose("### Kubectl set image Process Result");
+        $this->_verbose("----------------------------");
+        $this->_verbose($output);
+        $this->_verbose("----------------------------");
+        $this->_verbose("");
+
+        /**
+         * Kubectl rollout status process
+         */
+        // Rollout status command
+        $cmd = "kubectl rollout status deployment $deployment --namespace=$namespace --watch=true";
+
+        $this->_verbose("[Command]: $cmd");
+
+        // Shell execution
+        $output = '';
+        $result = $this->_cmd($cmd, $output);
+
+        // Check
+        if (!$result) {
+            $this->_verbose($output);
+            $this->_error("Kubectl rollout status Process Failed");
+        }
+
+        $this->_verbose("### Kubectl rollout status Process Result");
+        $this->_verbose("----------------------------");
+        $this->_verbose($output);
+        $this->_verbose("----------------------------");
+        $this->_verbose("");
+
+        $this->_done("Deploy GKE");
+    }
+
+    /**
      * Get project config 
      * 
      * @return array Config
@@ -466,11 +631,11 @@ class Deployer
      */
     private function _setConfig($config)
     {
-        if (!isset($config['servers']) || !$config['servers'] || !is_array($config['servers'])) {
+        if (!$config['gke']['enabled'] && (!isset($config['servers']) || !$config['servers'] || !is_array($config['servers']))) {
             throw new Exception('Config not set: servers', 400);
         }
 
-        if (!isset($config['source']) || !$config['source']) {
+        if (!$config['gke']['enabled'] && (!isset($config['source']) || !$config['source'])) {
             throw new Exception('Config not set: source', 400);
         }
 
@@ -499,13 +664,13 @@ class Deployer
         $config = &$this->_config;
 
         // Check for type of file / directory
-        if (!is_dir($config['source'])) {
+        if (!$config['gke']['enabled'] && !is_dir($config['source'])) {
 
             throw new Exception('Source file is not a directory (project)');
         }
 
         // Check for type of link
-        if (is_link($config['source'])) {
+        if (!$config['gke']['enabled'] && is_link($config['source'])) {
 
             throw new Exception('File input is symblic link');
         }

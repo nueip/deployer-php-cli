@@ -33,7 +33,7 @@ trait ShellConsole
         $cmd = rtrim($cmd, ';');
 
         // stdout
-        $cmd = "{$cmd} 2>&1;";
+        $cmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? "{$cmd} 2>&1" : "{$cmd} 2>&1;";
         exec($cmd, $output, $errorCode);
 
         // Build result text
